@@ -1,5 +1,3 @@
-# Ta det launa
-from tracemalloc import start
 import pygame
 import random
 import numpy as np
@@ -43,19 +41,21 @@ class Connect_four:
 
 
     def play_step(self):
-        # Return move if valid
-        row, column = self._user_input()
+        # Make a move if valid
+        piece_row, piece_col = self._user_input()
 
         # Drop piece
-        self._drop_piece(row, column)
+        self._drop_piece(piece_row, piece_col)
+
+        # Check if game over
+        if self._check_gameover(piece_row, piece_col):
+            return True
 
         # Swith Player
         self.turn = self._switch_player()
-    
-        
-        
-        
-        return True # Returns true if game continues
+            
+
+        return False # Return false if game not over
     
 
     def _user_input(self):
@@ -71,13 +71,32 @@ class Connect_four:
         
         # If column is full
         else:
-            print(f'Column 2 {sel_col} is full.')
+            print(f'Column {sel_col + 1} is full.')
             self._user_input()
 
     def _drop_piece(self, row, column):
         self.board[row][column] = self.turn.symbol
         print(self.board)
 
+    def _check_gameover(self, piece_row, piece_col):
+
+        for i in range(3):
+            
+            # Check horizontal
+            tile = self.board[piece_row][i:i+4]
+            if np.count_nonzero(tile == self.turn.symbol) == len(tile):
+                return True
+        
+            # Check vertical
+            tile = self.board.transpose()[piece_col][i:i+4]
+            if np.count_nonzero(tile == self.turn.symbol) == len(tile):
+                return True
+
+        return False
+    
+    
+    
+    
     def _switch_player(self):
         if self.turn == PLAYER_1: 
             return PLAYER_2
@@ -93,14 +112,13 @@ class Connect_four:
 game = Connect_four() 
 
 # Game loop
-game_running = True
-while game_running:
-    game_running = game.play_step()
+game_over = False
+while game_over == False:
+    game_over = game.play_step()
     
    
-    if game_running == False:
+    if game_over == True:
         break
 
-
-
+print('game over')
 pygame.quit()
