@@ -1,6 +1,13 @@
+import re
 import pygame
 import random
 import numpy as np
+from pygame.locals import *
+
+pygame.init()
+
+
+
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -38,26 +45,37 @@ class Connect_four:
         else:
             self.turn = PLAYER_2
         
+        # Init display
+        surface = pygame.display.set_mode((width, heigth))
+        surface.fill(WHITE)
 
 
     def play_step(self):
+
+        # 1. Collect user inputs
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+            if event.type == KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return True
+        
         # Make a move if valid
-        piece_row, piece_col = self._user_input()
+        #piece_row, piece_col = self._user_input()
 
         # Drop piece
-        self._drop_piece(piece_row, piece_col)
+        #self._drop_piece(piece_row, piece_col)
 
         # Check if game over
-        if self._check_gameover(piece_row, piece_col):
-            return True
+        #if self._check_gameover():
+            #return True
 
         # Swith Player
-        self.turn = self._switch_player()
+        #self.turn = self._switch_player()
             
 
         return False # Return false if game not over
     
-
     def _user_input(self):
         sel_col = int(input('\033[1m' + self.turn.name + '\033[0m' + f', Please select a column by typing a number between 1-{COLUMN_COUNT}: ')) - 1
 
@@ -78,20 +96,19 @@ class Connect_four:
         self.board[row][column] = self.turn.symbol
         print(self.board)
 
-    def _check_gameover(self, piece_row, piece_col):
-
-        for i in range(COLUMN_COUNT - 3):
-            
-            # Check horizontal
-            tile = self.board[piece_row][i:i+4]
-            if np.count_nonzero(tile == self.turn.symbol) == len(tile):
-                return True
+    def _check_gameover(self):
+        # Check horizontal
+        for r in range(ROW_COUNT):
+            for c in range(COLUMN_COUNT - 3):
+                if self.board[r][c] == self.board[r][c+1] == self.board[r][c+2] == self.board[r][c+3] == self.turn.symbol:
+                    return True
         
-            # Check vertical
-            tile = self.board.transpose()[piece_col][i:i+4]
-            if np.count_nonzero(tile == self.turn.symbol) == len(tile):
-                return True
-            
+        # Check vertical
+        for r in range(ROW_COUNT - 3):
+            for c in range(COLUMN_COUNT):
+                if self.board[r][c] == self.board[r+1][c] == self.board[r+2][c] == self.board[r+3][c] == self.turn.symbol:
+                    return True
+
         # Check / diagonal
         for r in range(5,2,-1):
             for c in range(COLUMN_COUNT - 3):
@@ -99,6 +116,10 @@ class Connect_four:
                     return True
         
         # Check \ diagonal
+        for r in range(3):
+            for c in range(4):
+                if self.board[r][c] == self.board[r+1][c+1] == self.board[r+2][c+2] == self.board[r+3][c+3] == self.turn.symbol:
+                    return True
             
 
         return False
@@ -123,9 +144,10 @@ game = Connect_four()
 # Game loop
 game_over = False
 while game_over == False:
-    game_over = game.play_step()
-    
+
    
+    game_over = game.play_step()
+                
     if game_over == True:
         break
 
