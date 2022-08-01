@@ -80,7 +80,7 @@ class Connect_four:
 
     def _check_gameover(self, piece_row, piece_col):
 
-        for i in range(3):
+        for i in range(COLUMN_COUNT - 3):
             
             # Check horizontal
             tile = self.board[piece_row][i:i+4]
@@ -91,10 +91,19 @@ class Connect_four:
             tile = self.board.transpose()[piece_col][i:i+4]
             if np.count_nonzero(tile == self.turn.symbol) == len(tile):
                 return True
+            
+        # Check / diagonal
+        for r in range(5,2,-1):
+            for c in range(COLUMN_COUNT - 3):
+                if self.board[r][c] == self.board[r-1][c+1] == self.board[r-2][c+2] == self.board[r-3][c+3] == self.turn.symbol:
+                    return True
+        
+        # Check \ diagonal
+            
 
         return False
     
-    
+        
     
     
     def _switch_player(self):
